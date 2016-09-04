@@ -1,0 +1,246 @@
+<meta charset="UTF-8" />
+<script>
+	// Code goes here
+
+var pers = {
+  hp: 100,
+  str: 10,
+  mp: 0,
+  armor: 100,
+  hit: 0
+};
+var mob = {
+    hp: 50,
+    str: 5,
+    mp: 0,
+    armor: 10,
+    hit: 0
+  },
+  room = ['f', 'f b', 'r b', 'd l', 'f u', 'f b'],
+  curentExit = [],
+  str = '',
+  walk = '',
+  i = 0,
+  todo = 0,
+  exit = false,
+  fight = false;
+alert("Вы очнулись в тюремной камере. Заключенный из камеры напротив,\n" +
+  " вам что-то втирает. Приходит стражник и отодвигает вас в угол.\n" +
+  " Заходит король и косается одного из камней. Открывается тайный проход в \n" +
+  "который вы протискиваетесь вслед за группой. Вас просят открыть дверь, но\n" +
+  " срабатывает ловушка и вы отрезанны решеткой.\n");
+
+do {
+	curentExit = getExits(i);
+  walk = prompt(
+    "Перед вами жуткий тунель с влажной землей, сырыми стенами и паутиной свисающей с потолка.\n" +
+    "На земнле разбросаны мелкие камушки, больно врезающиеся Вам в пятки.\n" + 
+    "В полумраке различимы обглоданные кости, страшно даже подумать чьи.\n" +
+    "\n" +
+    "У вас есть возможность двигаться : \n" +
+    exitToString(curentExit) + 
+	"\n(введите малнькую латинскую букву)");
+	walk.toLowerCase();
+	switch (walk){
+		case "f":{
+			if (isExit(curentExit, 'f')) {
+				i++;
+				alert("Вы продвинулись вперед.");
+			}
+			break;
+		}
+		case "b":{
+			if (isExit(curentExit, 'b')) {
+				i--;
+				alert("Вы вернулись назад.");
+			}
+			break;
+		}
+		case "l":{
+			if (isExit(curentExit, 'l')) {
+				i--;
+				alert("Вы повернули влево.");
+			}
+			break;
+		}
+		case "r":{
+			if (isExit(curentExit, 'r')) { 
+				i++;
+				alert("Вы повернули вправо.");
+			}
+			break;
+		}
+		case "u":{
+			if (isExit(curentExit, 'u')) {
+				i--;
+				alert("Вы поднялись вверх.");
+			}
+			break;
+		}
+		case "d":{
+			if (isExit(curentExit, 'd')) {
+				i++;
+				alert("Вы спустились вниз.");
+			}
+			break;
+		}
+		default:
+			alert("Вы хотите выйти. Извините, не сейчас. Вам надо пройти совсем немного.");
+	}
+  if (i == 5) fight = true;
+} while (!fight);
+
+do {
+  todo = prompt(
+    "Пробираясь по темным коридорам вы сталкиваетесь с огромной крысой.\n" +
+    "Время проведенное в камере сказалось на вас не в лучшую сторону.\n" +
+    " У Вас всего " + pers.hp + " жизни, а почти истлевшие тряпки дают " + pers.armor + " защиты.\n" +
+    "Вы будите: контратаковать (1),  уклоняться (2), 'тактически отступать' (3),\n" +
+    "героически втретите удар на грудь (4) или \n" +
+    "выйдите и попытаетесь забыть как страшный сон ('Отмена'/Esc).");
+  if (todo !== null && isNumeric(todo)) {
+    mob.hit = getDamage(mob.str * 5, mob.str * 10);
+    switch (+todo) {
+      case 1:
+        {
+          mob.hit = parseInt(mob.hit * 0.5);
+          pers.hit = getDamage(pers.str * 2, pers.str * 5);
+          str = "Левой рукой вы пытаетесь блокировать атаку крысы. \nКрыса делает прыжок на " + mob.hit + " урона.\n А правой бьете по крысе на " + pers.hit;
+          mob.hp -= pers.hit - mob.armor;
+          if (mob.hp <= 0) exit = true;
+          break;
+        }
+      case 2:
+        {
+          mob.hit = parseInt(mob.hit * 0.8);
+          str = "Вы еще слабы и медлительны и вам не удается полностью увернуться. \nКрыса делает прыжок на " + mob.hit + " урона.";
+          break;
+        }
+      case 3:
+        {
+          mob.hit *= 2;
+          str = "При Вашей попытке бегства крыса прыгает Вам на спину и прокусывает шею на " + mob.hit;
+          break;
+        }
+      case 4:
+        {
+          str = "Встав в стойку 'смирно' Вы готовитесь сдержать удар. \nКрыса делает прыжок на " + mob.hit + " урона.";
+          break;
+        }
+      default:
+        {
+          alert("Не может быть!!!");
+        }
+    }
+    alert(str);
+    if (mob.hit >= pers.armor) {
+      mob.hit -= pers.armor;
+      pers.armor = 0;
+      pers.hp -= mob.hit;
+    } else {
+      pers.armor -= mob.hit;
+    }
+    if (pers.hp > 0) {
+      str = "\nВы выжили, но у вас осталось " + pers.hp + " здоровья и " + pers.armor + " брони.";
+      if (mob.hit >= 100) alert(str + "\n Еще один такой прыжок и вы труп.")
+      else alert(str);
+    } else {
+      alert("К сожалению Вы умерли.");
+      exit = true;
+    }
+  } else {
+    alert("Выход, так выход.");
+    exit = true;
+  }
+} while (!exit);
+if (mob.hp <= 0) semnadcatoeObnovlenie_GGSmorodinskiy();
+alert("Продолжение следует... =))");
+
+//
+function isExit(exits, eChar){
+	for (var i = 0; i < exits.length; i++){
+		if (exits[i] === eChar) return true;
+	}
+	return false;
+}
+
+//
+function exitToString(exits){
+  var arr = [];
+  for (var i = 0; i < exits.length; i++) {
+    switch (exits[i]) {
+      case 'f' || "f":
+        {
+          arr.push('Вперед (F)');
+          break;
+        }
+      case 'b' || "b":
+        {
+          arr.push('Назад (B)');
+          break;
+        }
+      case 'l' || "l":
+        {
+          arr.push('На лево (L)');
+          break;
+        }
+      case 'r' || "r":
+        {
+          arr.push('На право (R)');
+          break;
+        }
+      case 'u' || "u":
+        {
+          arr.push('Вверх (U)');
+          break;
+        }
+      case 'd' || "d":
+        {
+          arr.push('Вниз (D)');
+          break;
+        }
+      default:
+        alert('Не может быть!');
+    }
+  }
+  return arr.join('  ');
+}
+
+//
+function getExits(curentRoom) {
+  return room[curentRoom].split(' ');
+}
+
+//
+function semnadcatoeObnovlenie_GGSmorodinskiy() {
+  alert("Вы выиграли свой первый бой и получили +100500 опыта.\n" +
+    "Вами получен новый уровень! Текущий уровень: 2.\n" +
+    "Расовый бонус: +1% защиты от заклинаний темной магии, +1% защиты от заклинаний магии света.\n" +
+    "Классовый бонус: +1 к интеллекту; +1 к духу.\n" +
+    "Вам доступны 3 единицы характеристик.\n" +
+    "\n" +
+    "Вами получен новый уровень! \n" +
+    "… \n" +
+    "\n" +
+    "Вами получен новый уровень! \n" +
+    "… \n" +
+    "\n" +
+    "Вами получен новый уровень! Текущий уровень: 10. \n" +
+    "Вам доступна одна единица очков таланта. \n" +
+    "Расовый бонус: +1% защиты от заклинаний темной магии, +1% защиты от заклинаний магии света. \n" +
+    "Классовый бонус: +1 к интеллекту; +1 к духу. \n" +
+    "Вам доступны 27 единиц характеристик...");
+}
+
+//
+function getDamage(min, max) {
+  var n = max - min + 1;
+  n = parseInt(Math.random() * n);
+  return min + n;
+}
+
+//
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+</script>
